@@ -12,11 +12,11 @@
             <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
           </div>
           <input formControlName="query" type="text" class="form-control" placeholder="What are you looking for?" aria-label="What are you looking for?" aria-describedby="button-addon2">
-          <div *ngIf="inputLoader == true" class="loader"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i></div>
+          <div *ngIf="inputLoader === true" class="loader"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i></div>
         </div>
     </form>
 
-    <section class="table-responsive" *ngIf="searchDone == true" [ngClass]="{'loading': isLoadingResult == true}">
+    <section class="table-responsive" *ngIf="searchDone === true" [ngClass]="{'loading': isLoadingResult === true}">
       <div class="loader" ><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
       <table class="table table-striped">
           <thead>
@@ -34,20 +34,20 @@
               <td>{{ item.volumeInfo.title }}</td>
               <td>{{ item.volumeInfo.authors }}</td>
               <td>{{ item.volumeInfo.publishedDate }}</td>
-              <td class="col-info"><a target="_blank" href="{{ item.volumeInfo.infoLink }}"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+              <td class="col-info"><a target="_blank" [href]="item.volumeInfo.infoLink"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
             </tr>
           </tbody>
       </table>
     </section>
 
-    <nav *ngIf="searchDone == true" aria-label="pagination">
+    <nav *ngIf="searchDone === true" aria-label="pagination">
         <ul class="pagination">
-          <li class="page-item" (click)="prevBtn($event)" [ngClass]="{'disabled': currentIndex == 0}">
+          <li class="page-item" (click)="prevBtn($event)" [ngClass]="{'disabled': currentIndex === 0}">
             <span class="page-link previous" aria-label="Previous">
               <span aria-hidden="true">&laquo; previous</span>
             </span>
           </li>
-          <li class="page-item" (click)="nextBtn($event)" [ngClass]="{'disabled': (this.booksLenght/this.maxResult < 1)}">
+          <li class="page-item" (click)="nextBtn($event)" [ngClass]="{'disabled': (booksLength / maxResult < 1)}">
             <span class="page-link next" aria-label="Next">
               <span aria-hidden="true">next &raquo;</span>
             </span>
