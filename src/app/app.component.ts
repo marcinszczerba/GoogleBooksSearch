@@ -1,76 +1,100 @@
-﻿import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+﻿import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BooksService, BookItem } from './services/books.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.less'],
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class AppComponent implements OnInit {
-  title = 'app';
-  books: any[] = [];
-  searchDone = false;
-  currentIndex = 0;
-  maxResult = 20;
-  booksLength = 0;
-  isLoadingResult = false;
-  inputLoader = false;
-  searchForm: FormGroup;
+  public readonly title: string = 'Google Books Search';
+  public books: BookItem[] = [];
+  public searchDone: boolean = false;
+  public currentIndex: number = 0;
+  public maxResult: number = 20;
+  public booksLength: number = 0;
+  public isLoadingResult: boolean = false;
+  public inputLoader: boolean = false;
+  public errorMessage: string = '';
+  public searchForm: FormGroup;
 
-  constructor(private http: HttpClient) {
+  private readonly booksService: BooksService = inject(BooksService);
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
+
+  constructor() {
     this.searchForm = new FormGroup({
       query: new FormControl('')
     });
 
-    this.searchForm.get('query').valueChanges
-      .pipe(
-        filter((query: string) => query?.length >= 3),
+    this.searchForm
+      .get('query')
+      ?.valueChanges.pipe(
+        filter((query: string | null) => typeof query === 'string' && query.length >= 3),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((query: string) => {
-        this.isLoadingResult = true;
-        this.currentIndex = 0;
-        this.inputLoader = true;
-        this.search(query, 0);
+        this.private_resetSearch();
+        this.private_search(query, 0);
       });
   }
 
-  ngOnInit(): void {}
+  public ngOnInit(): void {}
 
-  search(query: string, startIndex = 0): void {
-    const authkey = 'AIzaSyCHAUsvzrWE0BWZDEDR_jkwKaZJfNhEUEM';
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${authkey}&maxResults=${this.maxResult}&startIndex=${startIndex}`;
-
-    this.http.get<any>(url).subscribe(data => {
-      this.inputLoader = false;
-      this.books = data?.items || [];
-      this.booksLength = this.books.length;
-      this.searchDone = true;
-      this.isLoadingResult = false;
-    });
-  }
-
-  nextBtn = (): void => {
+  public nextBtn(event?: Event): void {
+    event?.preventDefault();
     if (this.booksLength / this.maxResult === 1) {
       this.isLoadingResult = true;
       this.currentIndex += this.maxResult;
-      this.search(this.searchForm.get('query').value, this.currentIndex);
+      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex);
       window.scrollTo(0, 150);
     }
   }
 
-  prevBtn = (): void => {
+  public prevBtn(event?: Event): void {
+    event?.preventDefault();
     if (this.currentIndex !== 0) {
       this.isLoadingResult = true;
       this.currentIndex -= this.maxResult;
-      this.search(this.searchForm.get('query').value, this.currentIndex);
+      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex);
       window.scrollTo(0, 150);
     }
+  }
+
+  private private_resetSearch(): void {
+    this.isLoadingResult = true;
+    this.currentIndex = 0;
+    this.inputLoader = true;
+    this.errorMessage = '';
+  }
+
+  private private_search(query: string, startIndex: number = 0): void {
+    this.booksService
+      .searchBooks(query, this.maxResult, startIndex)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data: any) => {
+          this.inputLoader = false;
+          this.books = data && data.items ? data.items : [];
+          this.booksLength = this.books.length;
+          this.searchDone = true;
+          this.isLoadingResult = false;
+          this.errorMessage = '';
+        },
+        error: (error) => {
+          this.inputLoader = false;
+          this.isLoadingResult = false;
+          this.searchDone = false;
+          this.errorMessage = error.message || 'An error occurred while searching for books';
+          console.error('Search error:', error);
+        }
+      });
   }
 }
