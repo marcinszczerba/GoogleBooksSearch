@@ -49,7 +49,6 @@ export class BooksService {
       errorMessage = `Server error: ${error.status} - ${error.statusText}`;
     }
 
-    console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }

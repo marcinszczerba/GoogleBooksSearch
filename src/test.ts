@@ -9,7 +9,7 @@ import {
 
 // Unfortunately there's no typing for the `__karma__` variable. Just declare it as any.
 declare const __karma__: any;
-declare const require: any;
+
 // Prevent Karma from running prematurely.
 __karma__.loaded = function () {};
 
@@ -18,9 +18,14 @@ getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
-// Then we find all the tests.
-const context = require.context('./', true, /\.spec\.ts$/);
-// And load the modules.
-context.keys().map(context);
+
+// Load all spec files
+import './app/app.spec-list';
+
 // Finally, start Karma to run the tests.
 __karma__.start();
+
+
+
+
+

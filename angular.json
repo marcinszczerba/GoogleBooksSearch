@@ -26,9 +26,6 @@
               "src/styles.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css"
-            ],
-            "scripts": [
-              "node_modules/jquery/dist/jquery.min.js"
             ]
           },
           "configurations": {
@@ -86,21 +83,33 @@
               "src/styles.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css"
-            ],
-            "scripts": [
-              "node_modules/jquery/dist/jquery.min.js"
             ]
           }
         },
         "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
+          "builder": "@cypress/schematic:cypress",
           "options": {
-            "protractorConfig": "protractor.conf.js",
-            "devServerTarget": "google-books:serve"
+            "devServerTarget": "google-books:serve",
+            "watch": false,
+            "headless": true
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "google-books:serve:production",
+              "headless": true
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }
     }
   },
-  "defaultProject": "google-books"
 }

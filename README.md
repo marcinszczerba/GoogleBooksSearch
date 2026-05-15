@@ -11,6 +11,7 @@ A modern Angular 19 application for searching books using the Google Books API. 
 - **Modern Angular**: Built with Angular 19 standalone components and new control flow
 - **Type Safety**: Fully typed TypeScript implementation
 - **Memory Leak Prevention**: Safe subscription management using DestroyRef
+- **Comprehensive Tests**: Unit tests for components and services
 
 ## Tech Stack
 
@@ -69,12 +70,18 @@ npm run build
 
 The build artifacts will be stored in the `dist/` directory.
 
-### Running End-to-End Tests
+### Running Tests
 
-Run the end-to-end tests:
+Run the unit tests:
 
 ```bash
-npm run e2e
+npm test
+```
+
+To generate code coverage report:
+
+```bash
+ng test --code-coverage
 ```
 
 ## Project Structure
@@ -85,8 +92,10 @@ src/
 │   ├── app.component.ts          # Main component
 │   ├── app.component.html        # Template with new control flow
 │   ├── app.component.less        # Component styles
+│   ├── app.component.spec.ts     # Component tests
 │   └── services/
 │       ├── books.service.ts      # Books API service
+│       └── books.service.spec.ts # Service tests
 ├── environments/
 │   ├── environment.ts            # Development environment
 │   └── environment.prod.ts       # Production environment
@@ -109,6 +118,7 @@ src/
 - **Reactive Forms**: Proper reactive forms implementation with debounce and distinct filters
 
 ### Code Quality
+- **Unit Tests**: Comprehensive test coverage for components and services
 - **LESS Styling**: Organized styles in LESS format with variables
 - **Configuration Management**: API key and environment configuration in environment files
 

@@ -1,9 +1,9 @@
-﻿import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+﻿import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BooksService, BookItem } from './services/books.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +12,7 @@ import { BooksService, BookItem } from './services/books.service';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   public readonly title: string = 'Google Books Search';
   public books: BookItem[] = [];
   public searchDone: boolean = false;
@@ -28,10 +28,17 @@ export class AppComponent implements OnInit {
   private readonly destroyRef: DestroyRef = inject(DestroyRef);
 
   constructor() {
+    this.initializeSearchForm();
+    this.setupFormValueListener();
+  }
+
+  private initializeSearchForm(): void {
     this.searchForm = new FormGroup({
       query: new FormControl('')
     });
+  }
 
+  private setupFormValueListener(): void {
     this.searchForm
       .get('query')
       ?.valueChanges.pipe(
@@ -46,11 +53,9 @@ export class AppComponent implements OnInit {
       });
   }
 
-  public ngOnInit(): void {}
-
   public nextBtn(event?: Event): void {
     event?.preventDefault();
-    if (this.booksLength / this.maxResult === 1) {
+    if (this.booksLength >= this.maxResult) {
       this.isLoadingResult = true;
       this.currentIndex += this.maxResult;
       this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex);
