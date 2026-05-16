@@ -1,4 +1,4 @@
-﻿import { Component, DestroyRef, inject } from '@angular/core';
+﻿import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
@@ -13,15 +13,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class AppComponent {
-  public readonly title: string = 'Google Books Search';
-  public books: BookItem[] = [];
-  public searchDone: boolean = false;
-  public currentIndex: number = 0;
-  public maxResult: number = 20;
-  public booksLength: number = 0;
-  public isLoadingResult: boolean = false;
-  public inputLoader: boolean = false;
-  public errorMessage: string = '';
+  public title: string = 'Google Books Search';
+  public books = signal<BookItem[]>([]);
+  public searchDone = signal<boolean>(false);
+  public currentIndex = signal<number>(0);
+  public maxResult = signal<number>(20);
+  public isLoadingResult = signal<boolean>(false);
+  public inputLoader = signal<boolean>(false);
+  public errorMessage = signal<string>('');
+  
+  // Computed signal - automatycznie obliczana długość tablic
+  public readonly booksLength = computed(() => this.books().length);
+  
   public searchForm: FormGroup;
 
   private readonly booksService: BooksService = inject(BooksService);
@@ -55,49 +58,48 @@ export class AppComponent {
 
   public nextBtn(event?: Event): void {
     event?.preventDefault();
-    if (this.booksLength >= this.maxResult) {
-      this.isLoadingResult = true;
-      this.currentIndex += this.maxResult;
-      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex);
+    if (this.booksLength() >= this.maxResult()) {
+      this.isLoadingResult.set(true);
+      this.currentIndex.update(index => index + this.maxResult());
+      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex());
       window.scrollTo(0, 150);
     }
   }
 
   public prevBtn(event?: Event): void {
     event?.preventDefault();
-    if (this.currentIndex !== 0) {
-      this.isLoadingResult = true;
-      this.currentIndex -= this.maxResult;
-      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex);
+    if (this.currentIndex() !== 0) {
+      this.isLoadingResult.set(true);
+      this.currentIndex.update(index => index - this.maxResult());
+      this.private_search(this.searchForm.get('query')?.value || '', this.currentIndex());
       window.scrollTo(0, 150);
     }
   }
 
   private private_resetSearch(): void {
-    this.isLoadingResult = true;
-    this.currentIndex = 0;
-    this.inputLoader = true;
-    this.errorMessage = '';
+    this.isLoadingResult.set(true);
+    this.currentIndex.set(0);
+    this.inputLoader.set(true);
+    this.errorMessage.set('');
   }
 
   private private_search(query: string, startIndex: number = 0): void {
     this.booksService
-      .searchBooks(query, this.maxResult, startIndex)
+      .searchBooks(query, this.maxResult(), startIndex)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data: any) => {
-          this.inputLoader = false;
-          this.books = data && data.items ? data.items : [];
-          this.booksLength = this.books.length;
-          this.searchDone = true;
-          this.isLoadingResult = false;
-          this.errorMessage = '';
+          this.inputLoader.set(false);
+          this.books.set(data && data.items ? data.items : []);
+          this.searchDone.set(true);
+          this.isLoadingResult.set(false);
+          this.errorMessage.set('');
         },
         error: (error) => {
-          this.inputLoader = false;
-          this.isLoadingResult = false;
-          this.searchDone = false;
-          this.errorMessage = error.message || 'An error occurred while searching for books';
+          this.inputLoader.set(false);
+          this.isLoadingResult.set(false);
+          this.searchDone.set(false);
+          this.errorMessage.set(error.message || 'An error occurred while searching for books');
           console.error('Search error:', error);
         }
       });

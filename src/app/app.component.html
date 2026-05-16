@@ -12,20 +12,20 @@
             <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
           </div>
           <input formControlName="query" type="text" class="form-control" placeholder="What are you looking for?" aria-label="What are you looking for?" aria-describedby="button-addon2">
-          @if (inputLoader) {
+          @if (inputLoader()) {
             <div class="loader"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i></div>
           }
         </div>
     </form>
 
-    @if (errorMessage) {
+    @if (errorMessage()) {
       <div class="alert alert-danger">
-        {{ errorMessage }}
+        {{ errorMessage() }}
       </div>
     }
 
-    @if (searchDone) {
-      <section [class.loading]="isLoadingResult" class="table-responsive">
+    @if (searchDone()) {
+      <section [class.loading]="isLoadingResult()" class="table-responsive">
         <div class="loader" ><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
         <table class="table table-striped">
             <thead>
@@ -38,9 +38,9 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of books; track item.id; let index = $index) {
+              @for (item of books(); track item.id; let index = $index) {
                 <tr>
-                  <th scope="row">{{ index + currentIndex + 1 }}</th>
+                  <th scope="row">{{ index + currentIndex() + 1 }}</th>
                   <td>{{ item.volumeInfo.title }}</td>
                   <td>{{ item.volumeInfo.authors }}</td>
                   <td>{{ item.volumeInfo.publishedDate }}</td>
@@ -53,12 +53,12 @@
 
       <nav aria-label="pagination">
           <ul class="pagination">
-            <li class="page-item" (click)="prevBtn($event)" [class.disabled]="currentIndex === 0">
+            <li class="page-item" (click)="prevBtn($event)" [class.disabled]="currentIndex() === 0">
               <span class="page-link previous" aria-label="Previous">
                 <span aria-hidden="true">&laquo; previous</span>
               </span>
             </li>
-            <li class="page-item" (click)="nextBtn($event)" [class.disabled]="(booksLength / maxResult < 1)">
+            <li class="page-item" (click)="nextBtn($event)" [class.disabled]="(booksLength() / maxResult() < 1)">
               <span class="page-link next" aria-label="Next">
                 <span aria-hidden="true">next &raquo;</span>
               </span>

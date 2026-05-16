@@ -1,6 +1,6 @@
 # Google Books Search
 
-A modern Angular 19 application for searching books using the Google Books API. Built with standalone components, reactive forms, and comprehensive error handling.
+A modern Angular 19 application for searching books using the Google Books API. Built with standalone components, reactive forms, Angular Signals for state management, and comprehensive error handling.
 
 ## Features
 
@@ -9,6 +9,7 @@ A modern Angular 19 application for searching books using the Google Books API. 
 - **Error Handling**: Robust error handling with user-friendly error messages
 - **Responsive Design**: Bootstrap 4 UI with responsive layout
 - **Modern Angular**: Built with Angular 19 standalone components and new control flow
+- **Angular Signals**: Reactive state management using Angular Signals and computed properties
 - **Type Safety**: Fully typed TypeScript implementation
 - **Memory Leak Prevention**: Safe subscription management using DestroyRef
 - **Comprehensive Tests**: Unit tests for components and services
@@ -104,6 +105,22 @@ src/
 ```
 
 ## Key Improvements (Latest Version)
+
+### Angular Signals - State Management
+- **Reactive State**: Uses Angular Signals (`signal()`) for all component state variables
+  - `books`: Current search results
+  - `searchDone`: Search completion status
+  - `currentIndex`: Current pagination index
+  - `isLoadingResult`: Loading state indicator
+  - `inputLoader`: Input field loading state
+  - `errorMessage`: Error messages display
+- **Computed Properties**: `booksLength` is a computed signal that automatically updates when books change
+- **Update Methods**: Uses `.set()` and `.update()` for atomic state updates
+- **Benefits**:
+  - Improved Change Detection Strategy for better performance
+  - No manual subscription management for state updates
+  - Cleaner, more intuitive state management
+  - Automatic re-computation of dependent values
 
 ### Angular 19 Modernization
 - **Standalone Components**: Removed NgModule, using standalone components
